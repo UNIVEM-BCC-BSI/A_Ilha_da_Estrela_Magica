@@ -30,6 +30,7 @@ class Battle(pygame.sprite.Sprite):
         self.battleActive = False
         self.newEnemy = False
         self.state = ''
+        self.startTime = 0
 
     def draw_text(self, text, font, text_col, x, y):
         img = font.render(text, True, text_col)
@@ -39,6 +40,16 @@ class Battle(pygame.sprite.Sprite):
         if self.battleActive == False:
             self.listagemPerguntas()
             self.battleActive = True
+
+        currentTime = time.time()
+
+        # aumentar o tempo para responder a pergunta
+        if (currentTime - self.startTime) >= 5:
+            print('Tempo esgotado')
+            self.startTime = time.time()
+            self.wrong += 1
+            self.battleWonLost()
+            self.battleActive = False
 
         self.draw_text(self.perguntaJaFeita[-1]['pergunta'], self.font, 'Black', 270, 90)
 
@@ -121,6 +132,8 @@ class Battle(pygame.sprite.Sprite):
         if self.wrong == 3:
             print('Foi de arrasta pra cima')
             self.state = 'mainMenu'
+        
+        self.startTime = time.time()
 
     def reset_state(self):
         self.correct = 0
@@ -129,6 +142,7 @@ class Battle(pygame.sprite.Sprite):
         self.perguntaJaFeita = []
         self.battleActive = False
         self.state = ''
+        self.startTime = time.time()
     
     def reset_all(self):
         self.correct = 0
