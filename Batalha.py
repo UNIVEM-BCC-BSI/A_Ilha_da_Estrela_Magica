@@ -31,6 +31,9 @@ class Battle(pygame.sprite.Sprite):
         self.newEnemy = False
         self.state = ''
         self.startTime = 0
+        self.vida = 3
+        self.vida_image = pygame.image.load('sprite/vida.png').convert_alpha()
+        self.vida_image = pygame.transform.scale(self.vida_image, (80, 70))
 
     def draw_text(self, text, font, text_col, x, y):
         img = font.render(text, True, text_col)
@@ -43,15 +46,27 @@ class Battle(pygame.sprite.Sprite):
 
         currentTime = time.time()
 
+        if self.vida == 3:
+            self.screen.blit(self.vida_image, (1175, 20))
+            self.screen.blit(self.vida_image, (1100, 20))
+            self.screen.blit(self.vida_image, (1025, 20))
+        elif self.vida == 2:
+            self.screen.blit(self.vida_image, (1100, 20))
+            self.screen.blit(self.vida_image, (1025, 20))
+        else:
+            self.screen.blit(self.vida_image, (1025, 20))
+
         # aumentar o tempo para responder a pergunta
         if (currentTime - self.startTime) >= 5:
             print('Tempo esgotado')
+            self.vida -= 1
+            print(self.vida)
             self.startTime = time.time()
             self.wrong += 1
             self.battleWonLost()
             self.battleActive = False
 
-        self.draw_text(self.perguntaJaFeita[-1]['pergunta'], self.font, 'Black', 270, 90)
+        self.draw_text(self.perguntaJaFeita[-1]['pergunta'], self.font, 'Red', 270, 90)
 
         # A button
         self.group_btn[0].update()
@@ -121,6 +136,8 @@ class Battle(pygame.sprite.Sprite):
             print('Burro')
             self.wrong += 1
             self.battleWonLost()
+            self.vida -= 1
+            print(self.vida)
         
         self.battleActive = False
     
@@ -143,6 +160,7 @@ class Battle(pygame.sprite.Sprite):
         self.battleActive = False
         self.state = ''
         self.startTime = time.time()
+        self.vida = 3
     
     def reset_all(self):
         self.correct = 0
