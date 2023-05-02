@@ -8,10 +8,20 @@ menu_state = 'mainMenu'
 perguntas = perguntas.perguntas
 battleActive = False
 levelList, enemyList = [], []
+dinheiros = 0
 font = pygame.font.SysFont('comicsansms', 50)
+fontBattle = pygame.font.SysFont('comicsansms', 30)
+poderes = {
+    'vida_extra': 0,
+    'tempo_extra': 0,
+    'dano_extra': 0,
+    'esquiva': 0,
+    'sans': 0,
+    'instinto_inferior': 0,
+}
+
 TEXT_COL = (255, 255, 255)
 WIDTH, HEIGHT = 1280, 720
-
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 # <==== IMPORT SPRITES ====>
@@ -89,6 +99,9 @@ button_pressed_d = pygame.image.load('sprite/d_btn.png').convert_alpha()
 
 # Enemy button
 capanga_1 = pygame.image.load('sprite/capanga_1.png').convert_alpha()
+capanga_2 = pygame.image.load('sprite/capanga_2.png').convert_alpha()
+capanga_3 = pygame.image.load('sprite/capanga_3.png').convert_alpha()
+capanga_4 = pygame.image.load('sprite/capanga_4.png').convert_alpha()
 
 def draw_text(text, font, text_col, x, y):
   img = font.render(text, True, text_col)
@@ -186,16 +199,16 @@ button_group_inimigo_3_grey.add(button_inimigo_3_grey)
 
 # Battle buttons
 button_group_option_a = pygame.sprite.GroupSingle()
-button_option_a = Botao.Button_Enemy(button_unp_a, button_pressed_a, 140, 350, 3, "a")
+button_option_a = Botao.Button_Enemy(button_unp_a, button_pressed_a, WIDTH * 0.1, HEIGHT * 0.55, 3, "a")
 button_group_option_a.add(button_option_a)
 button_group_option_b = pygame.sprite.GroupSingle()
-button_option_b = Botao.Button_Enemy(button_unp_b, button_pressed_b, 430, 350, 3, 'b')
+button_option_b = Botao.Button_Enemy(button_unp_b, button_pressed_b, WIDTH * 0.53, HEIGHT * 0.55, 3, 'b')
 button_group_option_b.add(button_option_b)
 button_group_option_c = pygame.sprite.GroupSingle()
-button_option_c = Botao.Button_Enemy(button_unp_c, button_pressed_c, 140, 500, 3, 'c')
+button_option_c = Botao.Button_Enemy(button_unp_c, button_pressed_c, WIDTH * 0.1, HEIGHT * 0.77, 3, 'c')
 button_group_option_c.add(button_option_c)
 button_group_option_d = pygame.sprite.GroupSingle()
-button_option_d = Botao.Button_Enemy(button_unp_d, button_pressed_d, 430, 500, 3, 'd')
+button_option_d = Botao.Button_Enemy(button_unp_d, button_pressed_d, WIDTH * 0.53, HEIGHT * 0.77, 3, 'd')
 button_group_option_d.add(button_option_d)
 
 # Enemy
@@ -250,7 +263,12 @@ nivel = Level.LevelState([
     button_inimigo_3_grey,
 ], screen)
 
-batalha = Batalha.Battle([capanga_1], [430], [500], 3, [
+batalha = Batalha.Battle([
+    capanga_1,
+    capanga_2,
+    capanga_3,
+    capanga_4,
+], 1011, 228, 3, [
     button_group_option_a,
     button_group_option_b,
     button_group_option_c,
@@ -266,12 +284,14 @@ batalha = Batalha.Battle([capanga_1], [430], [500], 3, [
     'historia',
     'geografia',
     'biologia'
-], font)
+], fontBattle)
 
 
 run = True
 while run:
     screen.fill('White')
+
+    draw_text(str(dinheiros), font, 'Black', WIDTH * 0.3, 200)
 
     # <==== MAIN MENU ====>
     if menu_state == 'mainMenu':
@@ -293,6 +313,7 @@ while run:
     # <==== MAP ====>
     if menu_state == 'map':
         screen.fill((52, 78, 91))
+        draw_text(str(dinheiros), font, 'Black', WIDTH * 0.3, 200)
         draw_text('MAPA', font, TEXT_COL, (WIDTH * 0.5), 100)
 
         button_group_left.update()
@@ -337,7 +358,7 @@ while run:
                 
         if nivel.level_manager() == 'battle':
             menu_state = 'battle'
-            batalha.materiaIndex += 1
+            batalha.materiaEInimigoIndex += 1
             batalha.reset_state()
             nivel.reset_state()
 
@@ -349,26 +370,34 @@ while run:
     if menu_state == 'battle':
         draw_text('BATALHA ÉPICA', font, 'Black', WIDTH * 0.5, 30)
 
-        button_group_left.update()
-        button_group_left.draw(screen)
+        # button_group_left.update()
+        # button_group_left.draw(screen)
 
-        if batalha.battle_manager() == 'levelMenu':
+        if batalha.battle_manager()['estado'] == 'levelMenu':
+            if batalha.battle_manager()['erros'] == 0:
+                dinheiros += 3
+            else:
+                dinheiros += 1
+            
+            print(f'Dinheiros: {dinheiros}')
             menu_state = 'levelMenu'
             enemyList.append(True)
             if len(enemyList) == 3:
                 levelList.append(True)
-                batalha.materiaIndex = -1
+                batalha.materiaEInimigoIndex = -1
+                batalha.reset_image()
                 menu_state = 'map'
 
-        if batalha.battle_manager() == 'mainMenu':
+        if batalha.battle_manager()['estado'] == 'mainMenu':
+            dinheiros = 0
             batalha.reset_all()
             levelList, enemyList = [], []
             nivel.level_state = 'level_1'
             mapa.map_state = 'level_1'
             menu_state = 'mainMenu'
         
-        if button_left.mouse_click() == True:
-            menu_state = 'levelMenu'
+        # if button_left.mouse_click() == True:
+        #     menu_state = 'levelMenu'
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
