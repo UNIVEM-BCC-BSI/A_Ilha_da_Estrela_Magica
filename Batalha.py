@@ -1,18 +1,15 @@
 import pygame, random, time
-import perguntas, Inimigo
+import perguntas, StringSplitter
 
 perguntas = perguntas.perguntas
+# splitter = StringSplitter.Splitter()
+WIDTH, HEIGHT = 1280, 720
 
 # TELA DE BATALHA
 class Battle(pygame.sprite.Sprite):
-    def __init__(self, capanga: list, pos_x: list, pos_y: list, scale, group_btn: list, option_btn: list, screen, materia: list, font):
+    def __init__(self, capanga: list, pos_x, pos_y, scale, group_btn: list, option_btn: list, screen, materia: list, font):
         super().__init__()
-        width = capanga[0].get_width()
-        height = capanga[0].get_height()
-
-        self.image = pygame.transform.scale(capanga[0], (int(width * scale), int(height * scale)))
-        self.rect = self.image.get_rect(midtop=(pos_x[0], pos_y[0]))
-
+        self.capanga = capanga
         self.enemyChange = False
         self.group_btn = group_btn
         self.option_btn = option_btn
@@ -20,20 +17,28 @@ class Battle(pygame.sprite.Sprite):
         self.perguntas = perguntas.copy()
         self.materia = materia
         self.font = font
+        # self.scale = scale
 
         self.correct = 0
         self.wrong = 0
         self.perguntaList = []
         self.perguntaJaFeita = []
         self.materiaInimigo = random.sample(self.materia, 3)
-        self.materiaIndex = -1
+        self.materiaEInimigoIndex = -1
         self.battleActive = False
         self.newEnemy = False
         self.state = ''
         self.startTime = 0
-        self.vida = 3
         self.vida_image = pygame.image.load('sprite/vida.png').convert_alpha()
-        self.vida_image = pygame.transform.scale(self.vida_image, (80, 70))
+        self.vida_image = pygame.transform.scale(self.vida_image, (48, 42)) # tamanho real do sprite, divida por 3 os valores
+
+        # self.width = self.capanga[self.materiaEInimigoIndex + 1].get_width()
+        # self.height = self.capanga[self.materiaEInimigoIndex + 1].get_height()
+        # self.image = pygame.transform.scale(self.capanga[self.materiaEInimigoIndex + 1], (int(self.width * self.scale), int(self.height * self.scale)))
+
+        self.image = pygame.transform.scale(self.capanga[0], (120, 136)) # tamanho real do sprite, divida por 3 os valores
+        self.rect = self.image.get_rect(center=(pos_x, pos_y))
+        self.splitter = StringSplitter.Splitter(self.screen)
 
     def draw_text(self, text, font, text_col, x, y):
         img = font.render(text, True, text_col)
@@ -46,45 +51,50 @@ class Battle(pygame.sprite.Sprite):
 
         currentTime = time.time()
 
-        if self.vida == 3:
-            self.screen.blit(self.vida_image, (1175, 20))
-            self.screen.blit(self.vida_image, (1100, 20))
-            self.screen.blit(self.vida_image, (1025, 20))
-        elif self.vida == 2:
-            self.screen.blit(self.vida_image, (1100, 20))
-            self.screen.blit(self.vida_image, (1025, 20))
+        if self.wrong == 0:
+            self.screen.blit(self.vida_image, (35, 20))
+            self.screen.blit(self.vida_image, (85, 20))
+            self.screen.blit(self.vida_image, (135, 20))
+        elif self.wrong == 1:
+            self.screen.blit(self.vida_image, (35, 20))
+            self.screen.blit(self.vida_image, (85, 20))
         else:
-            self.screen.blit(self.vida_image, (1025, 20))
+            self.screen.blit(self.vida_image, (35, 20))
+
+        self.screen.blit(self.image, self.rect)
+        self.draw_text(str(int(6 - (currentTime - self.startTime))), self.font, 'Blue', 1175, 20)
 
         # aumentar o tempo para responder a pergunta
         if (currentTime - self.startTime) >= 5:
             print('Tempo esgotado')
-            self.vida -= 1
-            print(self.vida)
             self.startTime = time.time()
-            self.wrong += 1
-            self.battleWonLost()
-            self.battleActive = False
+            # self.wrong += 1
+            # self.battleWonLost()
+            # self.battleActive = False
 
-        self.draw_text(self.perguntaJaFeita[-1]['pergunta'], self.font, 'Red', 270, 90)
+        # self.draw_text(self.perguntaJaFeita[-1]['pergunta'], self.font, 'Red', 270, 90)
+        self.splitter.Draw_Text(self.perguntaJaFeita[-1]['pergunta'], self.font, 'Red', WIDTH * 0.08, HEIGHT * 0.15, 640, 240)
 
-        # A button
+        # <==== A button ====>
         self.group_btn[0].update()
         self.group_btn[0].draw(self.screen)
-        self.draw_text(self.perguntaList[0], self.font, 'Black', 180, 365)
-        # B button
+        # self.draw_text(self.perguntaList[0], self.font, 'Black', 180, 365)
+        self.splitter.Draw_Text(self.perguntaList[0], self.font, 'Black', WIDTH * 0.14, HEIGHT * 0.51, WIDTH * 0.35, HEIGHT * 0.18)
+        # <==== B button ====>
         self.group_btn[1].update()
         self.group_btn[1].draw(self.screen)
-        self.draw_text(self.perguntaList[1], self.font, 'Black', 470, 365)
-        # C button
+        # self.draw_text(self.perguntaList[1], self.font, 'Black', 470, 365)
+        self.splitter.Draw_Text(self.perguntaList[1], self.font, 'Black', WIDTH * 0.56, HEIGHT * 0.51, WIDTH * 0.35, HEIGHT * 0.18)
+        # <==== C button ====>
         self.group_btn[2].update()
         self.group_btn[2].draw(self.screen)
-        self.draw_text(self.perguntaList[2], self.font, 'Black', 180, 515)
-        # D button
-
+        # self.draw_text(self.perguntaList[2], self.font, 'Black', 180, 515)
+        self.splitter.Draw_Text(self.perguntaList[2], self.font, 'Black', WIDTH * 0.14, HEIGHT * 0.72, WIDTH * 0.35, HEIGHT * 0.18)
+        # <==== D button ====>
         self.group_btn[3].update()
         self.group_btn[3].draw(self.screen)
-        self.draw_text(self.perguntaList[3], self.font, 'Black', 470, 515)
+        # self.draw_text(self.perguntaList[3], self.font, 'Black', 470, 515)
+        self.splitter.Draw_Text(self.perguntaList[3], self.font, 'Black', WIDTH * 0.56, HEIGHT * 0.72, WIDTH * 0.35, HEIGHT * 0.18)
 
         if self.option_btn[0].mouse_click() == True:
             self.verifyAnswer(self.perguntaList[0])
@@ -105,7 +115,10 @@ class Battle(pygame.sprite.Sprite):
 
     def battle_manager(self):
         self.battle()
-        return self.state
+        return {
+            'estado': self.state,
+            'erros': self.wrong,
+        }
   
 
     def listagemPerguntas(self):
@@ -115,7 +128,7 @@ class Battle(pygame.sprite.Sprite):
             self.newEnemy = False
 
         while True:
-            listaPorMateria = perguntas[self.materiaInimigo[self.materiaIndex]].copy()
+            listaPorMateria = perguntas[self.materiaInimigo[self.materiaEInimigoIndex]].copy()
             random.shuffle(listaPorMateria)
 
             if (listaPorMateria[0] in self.perguntaJaFeita) == False:
@@ -136,14 +149,13 @@ class Battle(pygame.sprite.Sprite):
             print('Burro')
             self.wrong += 1
             self.battleWonLost()
-            self.vida -= 1
-            print(self.vida)
         
         self.battleActive = False
     
     def battleWonLost(self):
         if self.correct == 2:
             print('Inimigo derrotado')
+            self.image = pygame.transform.scale(self.capanga[self.materiaEInimigoIndex + 1], (90, 102))
             self.state = 'levelMenu'
         
         if self.wrong == 3:
@@ -160,7 +172,6 @@ class Battle(pygame.sprite.Sprite):
         self.battleActive = False
         self.state = ''
         self.startTime = time.time()
-        self.vida = 3
     
     def reset_all(self):
         self.correct = 0
@@ -168,7 +179,10 @@ class Battle(pygame.sprite.Sprite):
         self.perguntaList = []
         self.perguntaJaFeita = []
         # self.materiaInimigo = random.sample(self.materia, 3)
-        self.materiaIndex = -1
+        self.materiaEInimigoIndex = -1
         self.battleActive = False
         self.newEnemy = False
         self.state = ''
+    
+    def reset_image(self):
+        self.image = pygame.transform.scale(self.capanga[0], (90, 102))
