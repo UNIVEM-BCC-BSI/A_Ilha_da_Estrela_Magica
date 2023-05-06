@@ -1,14 +1,14 @@
 import pygame
-import perguntas, Botao, Mapa, Inimigo, Level, Batalha
+import perguntas, Botao, Mapa, Inimigo, Level, Batalha, Loja
 
 pygame.init()
-
+print('<' + '=' * 100 + '>')
 # <==== GLOBAL VARIABLES ====>
 menu_state = 'mainMenu'
 perguntas = perguntas.perguntas
 battleActive = False
 levelList, enemyList = [], []
-dinheiros = 0
+dinheiros = 27
 font = pygame.font.SysFont('comicsansms', 50)
 fontBattle = pygame.font.SysFont('comicsansms', 30)
 poderes = {
@@ -32,6 +32,11 @@ button_pressed_quit = pygame.image.load('sprite/quit_button.png').convert_alpha(
 
 button_unp_left = pygame.image.load('sprite/left_btn_unp.png').convert_alpha()
 button_pressed_left = pygame.image.load('sprite/left_btn.png').convert_alpha()
+button_unp_right = pygame.image.load('sprite/right_btn_unp.png').convert_alpha()
+button_pressed_right = pygame.image.load('sprite/right_btn.png').convert_alpha()
+
+button_unp_store = pygame.image.load('sprite/store_button_unp.png').convert_alpha()
+button_pressed_store = pygame.image.load('sprite/store_btn.png').convert_alpha()
 
 # Level button
 button_unp_level_1 = pygame.image.load('sprite/level_1_unp.png').convert_alpha()
@@ -119,6 +124,21 @@ button_group_quit.add(button_quit)
 button_group_left = pygame.sprite.GroupSingle()
 button_left = Botao.Button(button_unp_left, button_pressed_left, 35, 10, 3)
 button_group_left.add(button_left)
+button_group_item_1 = pygame.sprite.GroupSingle()
+button_item_1 = Botao.Button(button_unp_right, button_pressed_right, WIDTH * 0.2, HEIGHT * 0.3, 3)
+button_group_item_1.add(button_item_1)
+button_group_item_2 = pygame.sprite.GroupSingle()
+button_item_2 = Botao.Button(button_unp_right, button_pressed_right, WIDTH * 0.2, HEIGHT * 0.4, 3)
+button_group_item_2.add(button_item_2)
+button_group_item_3 = pygame.sprite.GroupSingle()
+button_item_3 = Botao.Button(button_unp_right, button_pressed_right, WIDTH * 0.2, HEIGHT * 0.5, 3)
+button_group_item_3.add(button_item_3)
+button_group_item_4 = pygame.sprite.GroupSingle()
+button_item_4 = Botao.Button(button_unp_right, button_pressed_right, WIDTH * 0.2, HEIGHT * 0.6, 3)
+button_group_item_4.add(button_item_4)
+button_group_store = pygame.sprite.GroupSingle()
+button_store = Botao.Button(button_unp_store, button_pressed_store, WIDTH * 0.1, HEIGHT * 0.5, 3)
+button_group_store.add(button_store)
 
 # Level buttons
 button_group_level_1 = pygame.sprite.GroupSingle()
@@ -227,6 +247,7 @@ mapa = Mapa.Map([
     button_group_level_2_grey,
     button_group_level_3_grey,
     button_group_boss_grey,
+    button_group_store,
 ], [
     button_level_1,
     button_level_2,
@@ -239,6 +260,7 @@ mapa = Mapa.Map([
     button_level_2_grey,
     button_level_3_grey,
     button_boss_grey,
+    button_store,
 ], screen)
 
 nivel = Level.LevelState([
@@ -284,17 +306,29 @@ batalha = Batalha.Battle([
     'historia',
     'geografia',
     'biologia'
-], fontBattle)
+], fontBattle, poderes)
+
+loja = Loja.Store(dinheiros, [
+    button_group_item_1,
+    button_group_item_2,
+    button_group_item_3,
+    button_group_item_4,
+], [
+    button_item_1,
+    button_item_2,
+    button_item_3,
+    button_item_4,
+], fontBattle, screen, poderes)
 
 
 run = True
 while run:
     screen.fill('White')
 
-    draw_text(str(dinheiros), font, 'Black', WIDTH * 0.3, 200)
 
     # <==== MAIN MENU ====>
     if menu_state == 'mainMenu':
+        draw_text(str(dinheiros), font, 'Black', WIDTH * 0.15, 100)
         draw_text('A Ilha da Estrela Mágica', font, 'Black', (WIDTH * 0.5), 100)
 
         button_group_play.update()
@@ -313,7 +347,7 @@ while run:
     # <==== MAP ====>
     if menu_state == 'map':
         screen.fill((52, 78, 91))
-        draw_text(str(dinheiros), font, 'Black', WIDTH * 0.3, 200)
+        draw_text(str(dinheiros), font, 'Black', WIDTH * 0.15, 100)
         draw_text('MAPA', font, TEXT_COL, (WIDTH * 0.5), 100)
 
         button_group_left.update()
@@ -331,15 +365,22 @@ while run:
             mapa.map_state = 'level_2'
             nivel.level_state = 'level_1'
             enemyList = []
+        
+        mapaRetorno = mapa.map_manager()
 
-        if mapa.map_manager() == 'levelMenu':
+        if mapaRetorno == 'levelMenu':
             menu_state = 'levelMenu'
-            batalha.newEnemy = True # randomize the subjects
+            batalha.newEnemy = True # matérias aleatórias
+            mapa.reset_state()
+        elif mapaRetorno == 'store':
+            menu_state = 'store'
+            loja.dinheiros = dinheiros
             mapa.reset_state()
 
         if button_left.mouse_click() == True:
             menu_state = 'mainMenu'
             button_left.reset_state()
+        
         
     # <==== LEVEL MENU ====>
     if menu_state == 'levelMenu':
@@ -359,6 +400,7 @@ while run:
         if nivel.level_manager() == 'battle':
             menu_state = 'battle'
             batalha.materiaEInimigoIndex += 1
+            batalha.poderes = poderes
             batalha.reset_state()
             nivel.reset_state()
 
@@ -373,14 +415,17 @@ while run:
         # button_group_left.update()
         # button_group_left.draw(screen)
 
-        if batalha.battle_manager()['estado'] == 'levelMenu':
-            if batalha.battle_manager()['erros'] == 0:
+        batalhaRetorno = batalha.battle_manager()
+
+        if batalhaRetorno['estado'] == 'levelMenu':
+            if batalhaRetorno['erros'] == 0:
                 dinheiros += 3
             else:
                 dinheiros += 1
             
             print(f'Dinheiros: {dinheiros}')
             menu_state = 'levelMenu'
+            poderes = batalhaRetorno['poder']
             enemyList.append(True)
             if len(enemyList) == 3:
                 levelList.append(True)
@@ -388,16 +433,41 @@ while run:
                 batalha.reset_image()
                 menu_state = 'map'
 
-        if batalha.battle_manager()['estado'] == 'mainMenu':
+        if batalhaRetorno['estado'] == 'mainMenu':
             dinheiros = 0
             batalha.reset_all()
+            # loja.reset_state()
             levelList, enemyList = [], []
+            poderes = {
+                'vida_extra': 0,
+                'tempo_extra': 0,
+                'dano_extra': 0,
+                'esquiva': 0,
+                'sans': 0,
+                'instinto_inferior': 0,
+            }
             nivel.level_state = 'level_1'
             mapa.map_state = 'level_1'
             menu_state = 'mainMenu'
         
         # if button_left.mouse_click() == True:
         #     menu_state = 'levelMenu'
+
+    # <==== STORE ====>
+    if menu_state == 'store':
+        screen.fill((52, 78, 91))
+        draw_text(str(dinheiros), font, 'Black', WIDTH * 0.15, 100)
+        draw_text('LOJINHA DO SEU ZÉ', font, TEXT_COL, (WIDTH * 0.5), 100)
+
+        button_group_left.update()
+        button_group_left.draw(screen)
+
+        lojaRetorno = loja.store_manager()
+        poderes, dinheiros = lojaRetorno[0], lojaRetorno[1]
+
+        if button_left.mouse_click() == True:
+            menu_state = 'map'
+            button_left.reset_state()
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

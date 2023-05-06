@@ -29,6 +29,10 @@ class Map():
         self.menu_state = ''
 
     def level_1(self):
+        # store button
+        self.group_btn[11].update()
+        self.group_btn[11].draw(self.screen)
+
         # level 1 button
         self.group_btn[0].update()
         self.group_btn[0].draw(self.screen)
@@ -48,8 +52,16 @@ class Map():
         if self.option_btn[0].mouse_click() == True:
             self.menu_state = 'levelMenu'
             self.option_btn[0].reset_state()
+        
+        if self.option_btn[11].mouse_click() == True:
+            self.menu_state = 'store'
+            self.option_btn[11].reset_state()
 
     def level_2(self):
+        # store button
+        self.group_btn[11].update()
+        self.group_btn[11].draw(self.screen)
+
         # level 1 button disabled
         self.group_btn[4].update()
         self.group_btn[4].draw(self.screen)
@@ -69,8 +81,16 @@ class Map():
         if self.option_btn[1].mouse_click() == True:
             self.menu_state = 'levelMenu'
             self.option_btn[1].reset_state()
+
+        if self.option_btn[11].mouse_click() == True:
+            self.menu_state = 'store'
+            self.option_btn[11].reset_state()
         
     def level_3(self):
+        # store button
+        self.group_btn[11].update()
+        self.group_btn[11].draw(self.screen)
+
         # level 1 button disabled
         self.group_btn[4].update()
         self.group_btn[4].draw(self.screen)
@@ -90,8 +110,16 @@ class Map():
         if self.option_btn[2].mouse_click() == True:
             self.menu_state = 'levelMenu'
             self.option_btn[2].reset_state()
+
+        if self.option_btn[11].mouse_click() == True:
+            self.menu_state = 'store'
+            self.option_btn[11].reset_state()
         
     def boss(self):
+        # store button
+        self.group_btn[11].update()
+        self.group_btn[11].draw(self.screen)
+
         # level 1 button disabled
         self.group_btn[4].update()
         self.group_btn[4].draw(self.screen)
@@ -112,4 +140,7 @@ class Map():
             self.menu_state = 'battle'
             self.option_btn[3].reset_state()
         
+        if self.option_btn[11].mouse_click() == True:
+            self.menu_state = 'store'
+            self.option_btn[11].reset_state()
         
