@@ -1,21 +1,24 @@
-import pygame
-import perguntas, Botao, Mapa, Inimigo, Level, Batalha, Loja
+import pygame, time, random, StringSplitter
+import perguntas, Botao, Mapa, Musica, Level, Batalha, Loja, Narrativa, Predo
 
 pygame.init()
+pygame.font.init()
+pygame.mixer.pre_init(44100, -16, 2, 512)
+pygame.display.set_caption('A Ilha da Estrela Mágica')
 print('<' + '=' * 100 + '>')
 # <==== GLOBAL VARIABLES ====>
 menu_state = 'mainMenu'
 perguntas = perguntas.perguntas
-battleActive = False
-levelList, enemyList = [], []
-dinheiros = 27
+battleActive, musicActive = False, True
+levelList, enemyList = 0, 0
+dinheiros = 0
+tempoRetorno = time.time()
 font = pygame.font.SysFont('comicsansms', 50)
 fontBattle = pygame.font.SysFont('comicsansms', 30)
 poderes = {
     'vida_extra': 0,
     'tempo_extra': 0,
     'dano_extra': 0,
-    'esquiva': 0,
     'sans': 0,
     'instinto_inferior': 0,
 }
@@ -25,6 +28,27 @@ WIDTH, HEIGHT = 1280, 720
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 # <==== IMPORT SPRITES ====>
+# random stuff
+map_sprite = pygame.image.load('sprite/bosqueDivino.jpg').convert_alpha()
+pedro = pygame.image.load('sprite/pedro.png').convert_alpha()
+pedro_instinto = pygame.image.load('sprite/pedro_instinto.png').convert_alpha()
+sans_drogado = pygame.image.load('sprite/sans_drogado.png').convert_alpha()
+pedro_sound = pygame.mixer.Sound('sound/final_judgement.mp3')
+# pedro_instinto_sound = pygame.mixer.Sound('sound/instinto_inferior.mp3')
+pedro_sans_sound = pygame.mixer.Sound('sound/sans.mp3')
+menu_sound = pygame.mixer.Sound('sound/tela_inicial_e_mapa.wav')
+socao = pygame.mixer.Sound('sound/socao.wav')
+menu_boss_sound = pygame.mixer.Sound('sound/pedro_liberto.mp3')
+level_selection = pygame.mixer.Sound('sound/level_selection.wav')
+item_comprado = pygame.mixer.Sound('sound/item_comprado.wav')
+inimigo_derrotado = pygame.mixer.Sound('sound/inimigo_derrotado.mp3')
+game_over = pygame.mixer.Sound('sound/game_over.mp3')
+venceu = pygame.mixer.Sound('sound/venceu.mp3')
+batalha_1 = pygame.mixer.Sound('sound/batalha_1.wav')
+batalha_2 = pygame.mixer.Sound('sound/batalha_2.wav')
+batalha_3 = pygame.mixer.Sound('sound/batalha_3.wav')
+
+# general buttons
 button_unp_play = pygame.image.load('sprite/play_button_unp.png').convert_alpha()
 button_pressed_play = pygame.image.load('sprite/play_btn.png').convert_alpha()
 button_unp_quit = pygame.image.load('sprite/quit_button_unp.png').convert_alpha()
@@ -137,53 +161,53 @@ button_group_item_4 = pygame.sprite.GroupSingle()
 button_item_4 = Botao.Button(button_unp_right, button_pressed_right, WIDTH * 0.2, HEIGHT * 0.6, 3)
 button_group_item_4.add(button_item_4)
 button_group_store = pygame.sprite.GroupSingle()
-button_store = Botao.Button(button_unp_store, button_pressed_store, WIDTH * 0.1, HEIGHT * 0.5, 3)
+button_store = Botao.Button(button_unp_store, button_pressed_store, WIDTH * 0.7, HEIGHT * 0.57, 3)
 button_group_store.add(button_store)
 
 # Level buttons
 button_group_level_1 = pygame.sprite.GroupSingle()
-button_level_1 = Botao.Button(button_unp_level_1, button_pressed_level_1, (WIDTH * 0.5), (HEIGHT * 0.75), 3)
+button_level_1 = Botao.Button(button_unp_level_1, button_pressed_level_1, (WIDTH * 0.17), (HEIGHT * 0.72), 3)
 button_group_level_1.add(button_level_1)
 button_group_level_2 = pygame.sprite.GroupSingle()
-button_level_2 = Botao.Button(button_unp_level_2, button_pressed_level_2, (WIDTH * 0.5), (HEIGHT * 0.625), 3)
+button_level_2 = Botao.Button(button_unp_level_2, button_pressed_level_2, (WIDTH * 0.4), (HEIGHT * 0.66), 3)
 button_group_level_2.add(button_level_2)
 button_group_level_3 = pygame.sprite.GroupSingle()
-button_level_3 = Botao.Button(button_unp_level_3, button_pressed_level_3, (WIDTH * 0.5), (HEIGHT * 0.5), 3)
+button_level_3 = Botao.Button(button_unp_level_3, button_pressed_level_3, (WIDTH * 0.57), (HEIGHT * 0.37), 3)
 button_group_level_3.add(button_level_3)
 button_group_level_4 = pygame.sprite.GroupSingle()
-button_level_4 = Botao.Button(button_unp_level_4, button_pressed_level_4, (WIDTH * 0.5), (HEIGHT * 0.375), 3)
+button_level_4 = Botao.Button(button_unp_level_4, button_pressed_level_4, (WIDTH * 0.61), (HEIGHT * 0.15), 3)
 button_group_level_4.add(button_level_4)
 button_group_boss = pygame.sprite.GroupSingle()
-button_boss = Botao.Button(button_unp_boss, button_pressed_boss, (WIDTH * 0.5), (HEIGHT * 0.375), 3)
+button_boss = Botao.Button(button_unp_boss, button_pressed_boss, (WIDTH * 0.61), (HEIGHT * 0.15), 3)
 button_group_boss.add(button_boss)
 
 button_group_level_1_red = pygame.sprite.GroupSingle()
-button_level_1_red = Botao.Button(button_unp_level_1_red, button_pressed_level_1_red, (WIDTH * 0.5), (HEIGHT * 0.75), 3)
+button_level_1_red = Botao.Button(button_unp_level_1_red, button_pressed_level_1_red, (WIDTH * 0.17), (HEIGHT * 0.72), 3)
 button_group_level_1_red.add(button_level_1_red)
 button_group_level_2_red = pygame.sprite.GroupSingle()
-button_level_2_red = Botao.Button(button_unp_level_2_red, button_pressed_level_2_red, (WIDTH * 0.5), (HEIGHT * 0.625), 3)
+button_level_2_red = Botao.Button(button_unp_level_2_red, button_pressed_level_2_red, (WIDTH * 0.44), (HEIGHT * 0.66), 3)
 button_group_level_2_red.add(button_level_2_red)
 button_group_level_3_red = pygame.sprite.GroupSingle()
-button_level_3_red = Botao.Button(button_unp_level_3_red, button_pressed_level_3_red, (WIDTH * 0.5), (HEIGHT * 0.5), 3)
+button_level_3_red = Botao.Button(button_unp_level_3_red, button_pressed_level_3_red, (WIDTH * 0.57), (HEIGHT * 0.37), 3)
 button_group_level_3_red.add(button_level_3_red)
 button_group_level_4_red = pygame.sprite.GroupSingle()
-button_level_4_red = Botao.Button(button_unp_level_4_red, button_pressed_level_4_red, (WIDTH * 0.5), (HEIGHT * 0.375), 3)
+button_level_4_red = Botao.Button(button_unp_level_4_red, button_pressed_level_4_red, (WIDTH * 0.61), (HEIGHT * 0.15), 3)
 button_group_level_4_red.add(button_level_4_red)
 
 button_group_level_1_grey = pygame.sprite.GroupSingle()
-button_level_1_grey = Botao.Button(button_unp_level_1_grey, button_pressed_level_1_grey, (WIDTH * 0.5), (HEIGHT * 0.75), 3)
+button_level_1_grey = Botao.Button(button_unp_level_1_grey, button_pressed_level_1_grey, (WIDTH * 0.17), (HEIGHT * 0.72), 3)
 button_group_level_1_grey.add(button_level_1_grey)
 button_group_level_2_grey = pygame.sprite.GroupSingle()
-button_level_2_grey = Botao.Button(button_unp_level_2_grey, button_pressed_level_2_grey, (WIDTH * 0.5), (HEIGHT * 0.625), 3)
+button_level_2_grey = Botao.Button(button_unp_level_2_grey, button_pressed_level_2_grey, (WIDTH * 0.44), (HEIGHT * 0.66), 3)
 button_group_level_2_grey.add(button_level_2_grey)
 button_group_level_3_grey = pygame.sprite.GroupSingle()
-button_level_3_grey = Botao.Button(button_unp_level_3_grey, button_pressed_level_3_grey, (WIDTH * 0.5), (HEIGHT * 0.5), 3)
+button_level_3_grey = Botao.Button(button_unp_level_3_grey, button_pressed_level_3_grey, (WIDTH * 0.57), (HEIGHT * 0.37), 3)
 button_group_level_3_grey.add(button_level_3_grey)
 button_group_level_4_grey = pygame.sprite.GroupSingle()
-button_level_4_grey = Botao.Button(button_unp_level_4_grey, button_pressed_level_4_grey, (WIDTH * 0.5), (HEIGHT * 0.375), 3)
+button_level_4_grey = Botao.Button(button_unp_level_4_grey, button_pressed_level_4_grey, (WIDTH * 0.61), (HEIGHT * 0.15), 3)
 button_group_level_4_grey.add(button_level_4_grey)
 button_group_boss_grey = pygame.sprite.GroupSingle()
-button_boss_grey = Botao.Button(button_unp_boss_grey, button_pressed_boss_grey, (WIDTH * 0.5), (HEIGHT * 0.375), 3)
+button_boss_grey = Botao.Button(button_unp_boss_grey, button_pressed_boss_grey, (WIDTH * 0.61), (HEIGHT * 0.15), 3)
 button_group_boss_grey.add(button_boss_grey)
 
 # Enemies buttons
@@ -230,9 +254,6 @@ button_group_option_c.add(button_option_c)
 button_group_option_d = pygame.sprite.GroupSingle()
 button_option_d = Botao.Button_Enemy(button_unp_d, button_pressed_d, WIDTH * 0.53, HEIGHT * 0.77, 3, 'd')
 button_group_option_d.add(button_option_d)
-
-# Enemy
-capanga_group_1 = Inimigo.Enemy()
 
 # TESTE
 mapa = Mapa.Map([
@@ -283,14 +304,61 @@ nivel = Level.LevelState([
     button_inimigo_1_grey,
     button_inimigo_2_grey,
     button_inimigo_3_grey,
-], screen)
+], screen, {
+    'level_selection': level_selection
+})
 
 batalha = Batalha.Battle([
     capanga_1,
     capanga_2,
     capanga_3,
     capanga_4,
-], 1011, 228, 3, [
+], 1011, 228, 5, [
+    button_group_option_a,
+    button_group_option_b,
+    button_group_option_c,
+    button_group_option_d,
+], [
+  button_option_a,  
+  button_option_b,  
+  button_option_c,  
+  button_option_d,
+], screen, [
+    'matematica',
+    'portugues',
+    'historia',
+    'geografia',
+    'biologia'
+], fontBattle, poderes, [
+    batalha_1,
+    batalha_2,
+    batalha_3,
+    pedro_sans_sound
+])
+
+loja = Loja.Store(dinheiros, [
+    button_group_item_1,
+    button_group_item_2,
+    button_group_item_3,
+    button_group_item_4,
+    button_group_left
+], [
+    button_item_1,
+    button_item_2,
+    button_item_3,
+    button_item_4,
+    button_left
+], fontBattle, screen, poderes)
+
+pedro = Predo.Pedro([
+    pedro,
+    pedro_instinto,
+    sans_drogado
+], 1011, 220, {
+    'pedro': pedro_sound,
+    # 'pedro_instinto': pedro_instinto_sound,
+    'pedro_sans': pedro_sans_sound
+}, [
     button_group_option_a,
     button_group_option_b,
     button_group_option_c,
@@ -308,28 +376,26 @@ batalha = Batalha.Battle([
     'biologia'
 ], fontBattle, poderes)
 
-loja = Loja.Store(dinheiros, [
-    button_group_item_1,
-    button_group_item_2,
-    button_group_item_3,
-    button_group_item_4,
-], [
-    button_item_1,
-    button_item_2,
-    button_item_3,
-    button_item_4,
-], fontBattle, screen, poderes)
+narrativaText = Narrativa.NarrativaText(font, menu_state, screen)
 
+stringSplitter = StringSplitter.Splitter(screen)
+
+musica_fundo = Musica.BgMusic(menu_sound)
+
+scale_size = (int(1280*0.1), int(720*0.1))
+img_blur = pygame.transform.smoothscale(map_sprite, scale_size)
+img_blur = pygame.transform.smoothscale(img_blur, (1280, 720))
 
 run = True
 while run:
-    screen.fill('White')
-
+    screen.blit(img_blur, (0, 0))
+    if musicActive == True:
+        musica_fundo.on_start()
+        musicActive = False
 
     # <==== MAIN MENU ====>
     if menu_state == 'mainMenu':
-        draw_text(str(dinheiros), font, 'Black', WIDTH * 0.15, 100)
-        draw_text('A Ilha da Estrela Mágica', font, 'Black', (WIDTH * 0.5), 100)
+        draw_text('A Ilha da Estrela Mágica', font, 'White', (WIDTH * 0.5), 80)
 
         button_group_play.update()
         button_group_play.draw(screen)
@@ -339,6 +405,8 @@ while run:
 
         if button_play.mouse_click() == True:
             menu_state = 'map'
+            narrativaText.menu_state = 'story'
+            narrativaText.startTime = time.time()
             button_play.reset_state()
 
         if button_quit.mouse_click() == True:
@@ -346,36 +414,47 @@ while run:
     
     # <==== MAP ====>
     if menu_state == 'map':
-        screen.fill((52, 78, 91))
-        draw_text(str(dinheiros), font, 'Black', WIDTH * 0.15, 100)
-        draw_text('MAPA', font, TEXT_COL, (WIDTH * 0.5), 100)
+        screen.blit(map_sprite, (0, 0))
+        draw_text(f'Dinheiro: {str(dinheiros)}', font, 'Black', WIDTH * 0.15, HEIGHT * 0.05)
 
         button_group_left.update()
         button_group_left.draw(screen)
 
-        if len(levelList) == 3 and len(enemyList) == 3:
+        if levelList == 3 and enemyList == 3:
             mapa.map_state = 'boss'
             nivel.level_state = 'level_1'
-            enemyList = []
-        elif len(levelList) == 2 and len(enemyList) == 3:
+            enemyList = 0
+        elif levelList == 2 and enemyList == 3:
             mapa.map_state = 'level_3'
             nivel.level_state = 'level_1'
-            enemyList = []
-        elif len(levelList) == 1 and len(enemyList) == 3:
+            enemyList = 0
+        elif levelList == 1 and enemyList == 3:
             mapa.map_state = 'level_2'
             nivel.level_state = 'level_1'
-            enemyList = []
+            enemyList = 0
         
         mapaRetorno = mapa.map_manager()
 
         if mapaRetorno == 'levelMenu':
             menu_state = 'levelMenu'
             batalha.newEnemy = True # matérias aleatórias
+            nivel.musicActive = True
             mapa.reset_state()
+            musica_fundo.on_exit()
+        elif mapaRetorno == 'pedro':
+            pedro.embaralharPerguntas()
+            pedro.poderes = poderes
+            pedro.musicActive = True
+            mapa.reset_state()
+            menu_state = 'pedro'
+            musica_fundo.on_exit()
+            pedro.startTime = time.time()
         elif mapaRetorno == 'store':
             menu_state = 'store'
             loja.dinheiros = dinheiros
+            loja.musicActive = True
             mapa.reset_state()
+            musica_fundo.on_exit()
 
         if button_left.mouse_click() == True:
             menu_state = 'mainMenu'
@@ -384,60 +463,71 @@ while run:
         
     # <==== LEVEL MENU ====>
     if menu_state == 'levelMenu':
-        screen.fill((52, 78, 91))
         draw_text('SELEÇÃO DE INIMIGO', font, TEXT_COL, WIDTH * 0.5, 100)
 
         button_group_left.update()
         button_group_left.draw(screen)
 
-        if len(enemyList) == 3:
+        nivelRetorno = nivel.level_manager()
+
+        if enemyList == 3:
             nivel.level_state = 'boss'
-        elif len(enemyList) == 2:
+        elif enemyList == 2:
             nivel.level_state = 'level_3'
-        elif len(enemyList) == 1:
+        elif enemyList == 1:
             nivel.level_state = 'level_2'
                 
-        if nivel.level_manager() == 'battle':
+        if nivelRetorno == 'battle':
             menu_state = 'battle'
             batalha.materiaEInimigoIndex += 1
             batalha.poderes = poderes
+            batalha.musicActice = True
             batalha.reset_state()
             nivel.reset_state()
 
         if button_left.mouse_click() == True:
             menu_state = 'map'
+            musicActive = True
             button_left.reset_state()
 
     # <==== BATTLE ====>
     if menu_state == 'battle':
+        screen.fill('#31ad8c')
         draw_text('BATALHA ÉPICA', font, 'Black', WIDTH * 0.5, 30)
-
-        # button_group_left.update()
-        # button_group_left.draw(screen)
 
         batalhaRetorno = batalha.battle_manager()
 
         if batalhaRetorno['estado'] == 'levelMenu':
-            if batalhaRetorno['erros'] == 0:
-                dinheiros += 3
+            if batalhaRetorno['morteOuVencedor'] == True:
+                print('Foi por vida extra')
+                random.shuffle(batalha.perguntas[batalha.materiaInimigo[batalha.materiaEInimigoIndex]])
+
+                batalha.materiaEInimigoIndex -= 1
+                menu_state = 'levelMenu'
+                poderes = batalhaRetorno['poder']
             else:
-                dinheiros += 1
-            
-            print(f'Dinheiros: {dinheiros}')
-            menu_state = 'levelMenu'
-            poderes = batalhaRetorno['poder']
-            enemyList.append(True)
-            if len(enemyList) == 3:
-                levelList.append(True)
-                batalha.materiaEInimigoIndex = -1
-                batalha.reset_image()
-                menu_state = 'map'
+                if batalhaRetorno['erros'] == 0:
+                    dinheiros += 3
+                else:
+                    dinheiros += 1
+                
+                print(f'Dinheiros: {dinheiros}')
+                menu_state = 'levelMenu'
+                poderes = batalhaRetorno['poder']
+                enemyList += 1
+                if enemyList == 3:
+                    levelList += 1
+                    batalha.materiaEInimigoIndex = -1
+                    batalha.reset_image_sound()
+                    menu_state = 'map'
+                    musicActive = True
+            nivel.musicActive = True
 
         if batalhaRetorno['estado'] == 'mainMenu':
             dinheiros = 0
             batalha.reset_all()
             # loja.reset_state()
-            levelList, enemyList = [], []
+            levelList, enemyList = 0, 0
             poderes = {
                 'vida_extra': 0,
                 'tempo_extra': 0,
@@ -449,9 +539,24 @@ while run:
             nivel.level_state = 'level_1'
             mapa.map_state = 'level_1'
             menu_state = 'mainMenu'
-        
-        # if button_left.mouse_click() == True:
-        #     menu_state = 'levelMenu'
+            musicActive = True
+    
+    # <==== PEDRO ====>
+    if menu_state == 'pedro':
+        draw_text('"O" PEDRO', font, 'Black', WIDTH * 0.5, 30)
+
+        pedroRetorno = pedro.battle_manager()
+
+        if pedroRetorno['estado'] == 'win':
+            menu_state = 'narrativa'
+            narrativaText.menu_state = 'win'
+            narrativaText.startTime = time.time()
+            pedro.reset_all()
+        elif pedroRetorno['estado'] == 'skillIssue':
+            menu_state = 'narrativa'
+            narrativaText.menu_state = 'skillIssue'
+            narrativaText.startTime = time.time()
+            pedro.reset_all()
 
     # <==== STORE ====>
     if menu_state == 'store':
@@ -459,15 +564,41 @@ while run:
         draw_text(str(dinheiros), font, 'Black', WIDTH * 0.15, 100)
         draw_text('LOJINHA DO SEU ZÉ', font, TEXT_COL, (WIDTH * 0.5), 100)
 
-        button_group_left.update()
-        button_group_left.draw(screen)
-
         lojaRetorno = loja.store_manager()
-        poderes, dinheiros = lojaRetorno[0], lojaRetorno[1]
+        poderes, dinheiros = lojaRetorno['compras'], lojaRetorno['dinheiros']
 
-        if button_left.mouse_click() == True:
+        if lojaRetorno['estado'] == 'map':
             menu_state = 'map'
-            button_left.reset_state()
+            musicActive = True
+            loja.reset_state()
+    
+    # <==== NARRATIVA ====>
+    if menu_state == 'narrativa':
+        screen.fill('White')
+        narrativaRetorno = narrativaText.manager()
+
+        if narrativaRetorno['estado'] == 'map':
+            menu_state = 'map'
+            narrativaText.reset_state()
+        elif narrativaRetorno['estado'] == 'mainMenu':
+            menu_state = 'mainMenu'
+            narrativaText.reset_state()
+            dinheiros = 0
+            batalha.reset_all()
+            # loja.reset_state()
+            levelList, enemyList = 0, 0
+            poderes = {
+                'vida_extra': 0,
+                'tempo_extra': 0,
+                'dano_extra': 0,
+                'esquiva': 0,
+                'sans': 0,
+                'instinto_inferior': 0,
+            }
+            nivel.level_state = 'level_1'
+            mapa.map_state = 'level_1'
+            menu_state = 'mainMenu'
+            musicActive = True
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

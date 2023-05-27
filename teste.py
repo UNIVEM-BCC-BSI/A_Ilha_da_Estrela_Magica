@@ -5,7 +5,9 @@ pygame.init()
 screen = pygame.display.set_mode((500, 500))
 clock = pygame.time.Clock()
 
-vida = pygame.image.load('sprite/vida.png').convert_alpha()
+# vida = pygame.image.load('sprite/capanga_1.png').convert_alpha()
+# vida = pygame.image.load('sprite/capanga_2.png').convert_alpha()
+vida = pygame.image.load('sprite/pedro.png').convert_alpha()
 width = vida.get_width()
 height = vida.get_height()
 

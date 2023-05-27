@@ -1,5 +1,8 @@
 import pygame
 
+pygame.mixer.init()
+click_sound = pygame.mixer.Sound('sound/mouse_click.wav')
+
 class Button(pygame.sprite.Sprite):
     def __init__(self, image_unp, image_pressed, pos_x, pos_y, scale):
         super().__init__()
@@ -28,6 +31,7 @@ class Button(pygame.sprite.Sprite):
                 if self.mouse_is_down == False:
                     self.mouse_is_down = True
             elif pygame.mouse.get_pressed()[0] == False and self.mouse_is_down == True:
+                pygame.mixer.Sound.play(click_sound)
                 self.mouse_is_down = False
                 self.image = self.image_list[0]
                 self.rect.y = self.pos_y
@@ -36,6 +40,7 @@ class Button(pygame.sprite.Sprite):
                     self.action = True
                 else:
                     self.action = False
+
                 
         else:
             self.image = self.image_list[0]
@@ -62,6 +67,7 @@ class Button_Enemy(Button):
                 if self.mouse_is_down == False:
                     self.mouse_is_down = True
             elif pygame.mouse.get_pressed()[0] == False and self.mouse_is_down == True:
+                pygame.mixer.Sound.play(click_sound)
                 self.mouse_is_down = False
                 self.image = self.image_list[0]
                 self.rect.y = self.pos_y

@@ -1,15 +1,18 @@
 import pygame, random, time
-import perguntas, StringSplitter
+import perguntas, StringSplitter, Musica
 
+pygame.mixer.init()
 perguntas = perguntas.perguntas
 # splitter = StringSplitter.Splitter()
 WIDTH, HEIGHT = 1280, 720
 
 # TELA DE BATALHA
 class Battle(pygame.sprite.Sprite):
-    def __init__(self, capanga: list, pos_x, pos_y, scale, group_btn: list, option_btn: list, screen, materia: list, font, poderes):
+    def __init__(self, capanga: list, pos_x, pos_y, scale, group_btn: list, option_btn: list, screen, materia: list, font, poderes, music_group: list):
         super().__init__()
         self.capanga = capanga
+        self.pos_x = pos_x
+        self.pos_y = pos_y
         self.enemyChange = False
         self.group_btn = group_btn
         self.option_btn = option_btn
@@ -18,30 +21,43 @@ class Battle(pygame.sprite.Sprite):
         self.materia = materia
         self.font = font
         self.poderes = poderes
-        # self.scale = scale
+        self.scale = scale
+        self.music_group = music_group
 
         self.correct = 0
         self.wrong = 0
         self.perguntaList = []
         self.perguntaJaFeita = []
-        self.materiaInimigo = random.sample(self.materia, 3)
+        self.materiaInimigo = random.sample(self.materia, k=3)
         self.materiaEInimigoIndex = -1
         self.battleActive = False
+        self.musicActice = False
         self.newEnemy = False
         self.state = ''
         self.startTime = 0
-        self.tempoMax = 5
+        self.tempoMax = 50
         self.powerUpsVerified = False
+        self.vidaExtra = False
+        self.retornoPorMorteOuNao = False
+        self.materiaIndex = {
+            'matematica': 0,
+            'portugues': 0,
+            'historia': 0,
+            'geografia': 0,
+            'biologia': 0
+        }
         self.vida_image = pygame.image.load('sprite/vida.png').convert_alpha()
         self.vida_image = pygame.transform.scale(self.vida_image, (48, 42)) # tamanho real do sprite, divida por 3 os valores
 
-        # self.width = self.capanga[self.materiaEInimigoIndex + 1].get_width()
-        # self.height = self.capanga[self.materiaEInimigoIndex + 1].get_height()
-        # self.image = pygame.transform.scale(self.capanga[self.materiaEInimigoIndex + 1], (int(self.width * self.scale), int(self.height * self.scale)))
+        self.width = self.capanga[self.materiaEInimigoIndex + 1].get_width()
+        self.height = self.capanga[self.materiaEInimigoIndex + 1].get_height()
+        self.image = pygame.transform.scale(self.capanga[self.materiaEInimigoIndex + 1], (int(self.width * self.scale), int(self.height * self.scale)))
+        self.image = pygame.transform.flip(self.image, True, False)
 
-        self.image = pygame.transform.scale(self.capanga[0], (120, 136)) # tamanho real do sprite, divida por 3 os valores
-        self.rect = self.image.get_rect(center=(pos_x, pos_y))
+        # self.image = pygame.transform.scale(self.capanga[0], (120, 136)) # tamanho real do sprite, divida por 3 os valores
+        self.rect = self.image.get_rect(center=(self.pos_x, self.pos_y))
         self.splitter = StringSplitter.Splitter(self.screen)
+        self.musica = Musica.BgMusic(self.music_group[self.materiaEInimigoIndex + 1])
 
     def draw_text(self, text, font, text_col, x, y):
         img = font.render(text, True, text_col)
@@ -116,30 +132,34 @@ class Battle(pygame.sprite.Sprite):
         
 
     def battle_manager(self):
+        if self.musicActice == True:
+            self.musica.on_start()
+            self.musicActice = False
+
         self.battle()
         return {
             'estado': self.state,
             'erros': self.wrong,
             'poder': self.poderes,
+            'morteOuVencedor': self.retornoPorMorteOuNao,
         }
-  
 
     def listagemPerguntas(self):
         if self.newEnemy == True:
-            self.materiaInimigo = random.sample(self.materia, 3)
+            self.materiaInimigo = random.sample(self.materia, k=3)
             print(self.materiaInimigo)
+
+            for x in self.materiaInimigo:
+                random.shuffle(self.perguntas[x])
+
             self.newEnemy = False
+        
+        # self.pergunta[matéria][posição da pergunta] >> está difícil de ler, mas é isso, tiramos o loop pelo menos
+        self.perguntaJaFeita.append(self.perguntas[self.materiaInimigo[self.materiaEInimigoIndex]][self.materiaIndex[self.materiaInimigo[self.materiaEInimigoIndex]]])
+        self.perguntaList = self.perguntaJaFeita[-1]['resposta'].copy()
+        random.shuffle(self.perguntaList)
 
-        while True:
-            listaPorMateria = perguntas[self.materiaInimigo[self.materiaEInimigoIndex]].copy()
-            random.shuffle(listaPorMateria)
-
-            if (listaPorMateria[0] in self.perguntaJaFeita) == False:
-                self.perguntaList = listaPorMateria[0]['resposta'].copy()
-                random.shuffle(self.perguntaList)
-
-                self.perguntaJaFeita.append(listaPorMateria[0])
-                break
+        self.materiaIndex[self.materiaInimigo[self.materiaEInimigoIndex]] += 1
 
         return self.perguntaList
 
@@ -159,29 +179,41 @@ class Battle(pygame.sprite.Sprite):
     def battleWonLost(self):
         if self.correct == 2:
             print('Inimigo derrotado')
-            self.image = pygame.transform.scale(self.capanga[self.materiaEInimigoIndex + 1], (90, 102))
+            width = self.capanga[self.materiaEInimigoIndex + 1].get_width()
+            height = self.capanga[self.materiaEInimigoIndex + 1].get_height()
+            self.image = pygame.transform.scale(self.capanga[self.materiaEInimigoIndex + 1], (int(width * self.scale), int(height * self.scale)))
+            self.image = pygame.transform.flip(self.image, True, False)
+            self.rect = self.image.get_rect(center=(self.pos_x, self.pos_y))
+
+            self.musica.on_exit()
+            self.musica = Musica.BgMusic(self.music_group[self.materiaEInimigoIndex + 1])
+
             self.state = 'levelMenu'
         
         if self.wrong == 3:
-            # print('Foi de arrasta pra cima')
-            print('Game Over')
-            self.state = 'mainMenu'
+            if self.vidaExtra == True:
+                print('Vida extra utilizada')
+                self.retornoPorMorteOuNao = True
+                self.state = 'levelMenu'
+                self.poderes['vida_extra'] = 0
+                self.musica.on_exit()
+            else:
+                # print('Foi de arrasta pra cima')
+                print('Game Over')
+                self.musica.on_exit()
+                self.state = 'mainMenu'
         
         self.startTime = time.time()
     
     def verifyPowerUps(self):
         if self.poderes['vida_extra'] == 1:
-            print('-')
-            self.poderes['vida_extra'] = 0
+            self.vidaExtra = True
         if self.poderes['tempo_extra'] == 1:
-            self.tempoMax = 10
+            self.tempoMax = 120
             self.poderes['tempo_extra'] = 0
         if self.poderes['dano_extra'] == 1:
             self.correct += 1
             self.poderes['dano_extra'] = 0
-        if self.poderes['esquiva'] == 1:
-            print('-')
-            self.poderes['esquiva'] = 0
 
     def reset_state(self):
         self.correct = 0
@@ -190,9 +222,19 @@ class Battle(pygame.sprite.Sprite):
         self.perguntaJaFeita = []
         self.battleActive = False
         self.state = ''
+        self.perguntas = perguntas.copy()
         self.startTime = time.time()
-        self.tempoMax = 5
+        self.tempoMax = 50
         self.powerUpsVerified = False
+        self.vidaExtra = False
+        self.retornoPorMorteOuNao = False
+        self.materiaIndex = {
+            'matematica': 0,
+            'portugues': 0,
+            'historia': 0,
+            'geografia': 0,
+            'biologia': 0
+        }
     
     def reset_all(self):
         self.correct = 0
@@ -201,10 +243,28 @@ class Battle(pygame.sprite.Sprite):
         self.perguntaJaFeita = []
         self.materiaEInimigoIndex = -1
         self.battleActive = False
+        self.musicActice = False
         self.newEnemy = False
         self.state = ''
-        self.tempoMax = 5
+        self.perguntas = perguntas.copy()
+        self.tempoMax = 50
         self.powerUpsVerified = False
-    
-    def reset_image(self):
-        self.image = pygame.transform.scale(self.capanga[0], (90, 102))
+        self.vidaExtra = False
+        self.retornoPorMorteOuNao = False
+        self.materiaIndex = {
+            'matematica': 0,
+            'portugues': 0,
+            'historia': 0,
+            'geografia': 0,
+            'biologia': 0
+        }
+        self.image = pygame.transform.scale(self.capanga[self.materiaEInimigoIndex + 1], (int(self.width * self.scale), int(self.height * self.scale)))
+        self.image = pygame.transform.flip(self.image, True, False)
+        self.rect = self.image.get_rect(center=(self.pos_x, self.pos_y))
+        self.musica = Musica.BgMusic(self.music_group[self.materiaEInimigoIndex + 1])
+
+    def reset_image_sound(self):
+        self.image = pygame.transform.scale(self.capanga[self.materiaEInimigoIndex + 1], (int(self.width * self.scale), int(self.height * self.scale)))
+        self.image = pygame.transform.flip(self.image, True, False)
+        self.rect = self.image.get_rect(center=(self.pos_x, self.pos_y))
+        self.musica = Musica.BgMusic(self.music_group[self.materiaEInimigoIndex + 1])

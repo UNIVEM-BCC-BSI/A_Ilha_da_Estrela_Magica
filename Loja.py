@@ -1,23 +1,21 @@
-import pygame, StringSplitter
+import pygame, StringSplitter, Musica
 
+pygame.mixer.init()
+store_sound = pygame.mixer.Sound('sound/wii_shop.mp3')
 WIDTH, HEIGHT = 1280, 720
 
 class Store():
     def __init__(self, dinheiros, group_btn: list, option_btn: list, font, screen, poderes):
-        # self.compras = {
-        #     'vida_extra': 0,
-        #     'tempo_extra': 0,
-        #     'dano_extra': 0,
-        #     'esquiva': 0,
-        #     'sans': 0,
-        #     'instinto_inferior': 0
-        # } # tudo que o jogador comprou
         self.dinheiros = dinheiros
         self.group_btn = group_btn
         self.option_btn = option_btn
         self.font = font
         self.screen = screen
-        self.compras = poderes # teste, talvez seja o definitivo
+        self.compras = poderes
+
+        self.musicActive = False
+        self.state = ''
+        self.musica = Musica.BgMusic(store_sound)
     
     def draw_text(self, text, font, text_col, x, y):
         img = font.render(text, True, text_col)
@@ -27,21 +25,28 @@ class Store():
         # explicar que os poderes comprados serão utilizados sem falta na próxima batalha, ou seja,
         # não há um seletor para o jogador escolher que poder ele quer usar =P
 
+        self.group_btn[4].update()
+        self.group_btn[4].draw(self.screen)
+
+        if self.musicActive == True:
+            self.musica.on_start()
+            self.musicActive = False
+
         self.group_btn[0].update()
         self.group_btn[0].draw(self.screen)
-        self.draw_text('VIDA EXTRA', self.font, 'White', WIDTH * 0.23, HEIGHT * 0.32)
+        self.draw_text('VIDA EXTRA --- 7 Dinheiros', self.font, 'White', WIDTH * 0.23, HEIGHT * 0.32)
     
         self.group_btn[1].update()
         self.group_btn[1].draw(self.screen)
-        self.draw_text('DILATAÇÃO TEMPORAL', self.font, 'White', WIDTH * 0.23, HEIGHT * 0.42)
+        self.draw_text('DILATAÇÃO TEMPORAL --- 7 Dinheiros', self.font, 'White', WIDTH * 0.23, HEIGHT * 0.42)
 
         self.group_btn[2].update()
         self.group_btn[2].draw(self.screen)
-        self.draw_text('DIÁLOGO', self.font, 'White', WIDTH * 0.23, HEIGHT * 0.52)
+        self.draw_text('DIÁLOGO --- 4 Dinheiros', self.font, 'White', WIDTH * 0.23, HEIGHT * 0.52)
 
         self.group_btn[3].update()
         self.group_btn[3].draw(self.screen)
-        self.draw_text('???', self.font, 'White', WIDTH * 0.23, HEIGHT * 0.62)
+        self.draw_text('??? - --- 27 Dinheiros', self.font, 'White', WIDTH * 0.23, HEIGHT * 0.62)
 
         if self.option_btn[0].mouse_click() == True:
             if self.compras['vida_extra'] == 1:
@@ -93,18 +98,21 @@ class Store():
             print('<' + '=' * 50 + '>')
             self.option_btn[3].reset_state()
         
+        if self.option_btn[4].mouse_click() == True:
+            self.musica.on_exit()
+            self.state = 'map'
+            self.option_btn[4].reset_state()
+        
         # print(self.compras)
 
     def store_manager(self):
         self.itens()
-        return [self.compras, self.dinheiros]
+        return {
+            'compras': self.compras,
+            'dinheiros': self.dinheiros,
+            'estado': self.state,
+        }
 
-    # def reset_state(self):
-        # self.compras = {
-        #     'vida_extra': 0,
-        #     'tempo_extra': 0,
-        #     'dano_extra': 0,
-        #     'esquiva': 0,
-        #     'sans': 0,
-        #     'instinto_inferior': 0
-        # }
+    def reset_state(self):
+        self.state = ''
+        self.musicActive = False
