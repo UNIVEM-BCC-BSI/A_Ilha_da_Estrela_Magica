@@ -1,17 +1,20 @@
 # ENEMY SELECTION
 import pygame
-import perguntas
+import perguntas, Musica
 
 perguntas = perguntas.perguntas
 
 class LevelState():
-    def __init__(self, group_btn: list, option_btn: list, screen):
+    def __init__(self, group_btn: list, option_btn: list, screen, music_group: dict):
         self.level_state = 'level_1' # which level the user is
         self.group_btn = group_btn
         self.option_btn = option_btn
         self.screen = screen
+        self.music_group = music_group
 
         self.state = ''
+        self.musicActive = False
+        self.musica = Musica.BgMusic(self.music_group['level_selection'])
 
     def level_1(self):
         # Enemy 1 button
@@ -31,6 +34,7 @@ class LevelState():
         if self.option_btn[0].mouse_click() == True:
             self.state = 'battle'
             self.option_btn[0].reset_state()
+            self.musica.on_exit()
     
     def level_2(self):
         # level 1 disabled
@@ -48,6 +52,7 @@ class LevelState():
         if self.option_btn[1].mouse_click() == True:
             self.state = 'battle'
             self.option_btn[1].reset_state()
+            self.musica.on_exit()
         
     def level_3(self):
         # level 1 disabled
@@ -65,8 +70,13 @@ class LevelState():
         if self.option_btn[2].mouse_click() == True:
             self.state = 'battle'
             self.option_btn[2].reset_state()
+            self.musica.on_exit()
 
     def level_manager(self):
+        if self.musicActive == True:
+            self.musica.on_start()
+            self.musicActive = False
+
         if (self.level_state == 'level_1'):
             self.level_1()
         
@@ -80,3 +90,4 @@ class LevelState():
 
     def reset_state(self):
         self.state = ''
+        self.musicActive = False

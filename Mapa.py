@@ -1,11 +1,13 @@
 import pygame
 
-class Map():
+class Map(pygame.sprite.Sprite):
     def __init__(self, group_btn: list, option_btn: list, screen):
+        super().__init__()
         self.map_state = 'level_1'
         self.group_btn = group_btn
         self.option_btn = option_btn
         self.screen = screen
+
         # self.levelList = levelList
 
         self.menu_state = ''
@@ -137,7 +139,7 @@ class Map():
         self.group_btn[3].draw(self.screen)
 
         if self.option_btn[3].mouse_click() == True:
-            self.menu_state = 'battle'
+            self.menu_state = 'pedro'
             self.option_btn[3].reset_state()
         
         if self.option_btn[11].mouse_click() == True:
