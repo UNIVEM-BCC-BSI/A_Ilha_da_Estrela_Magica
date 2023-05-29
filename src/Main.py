@@ -444,8 +444,11 @@ while run:
         if mapaRetorno == 'levelMenu':
             menu_state = 'levelMenu'
 
-            if batalha.inimigosDerrotados % 3 == 0:
-                batalha.newEnemy = True # matérias aleatórias
+            # if batalha.inimigosDerrotados % 3 == 0:
+            #     batalha.newEnemy = True # matérias aleatórias
+            if batalha.gerarMaterias == True:
+                batalha.newEnemy = True
+                batalha.gerarMaterias = False
             
             nivel.musicActive = True
             mapa.reset_state()
@@ -490,7 +493,7 @@ while run:
             menu_state = 'battle'
             batalha.materiaEInimigoIndex += 1
             batalha.poderes = poderes
-            batalha.musicActice = True
+            batalha.musicActive = True
             batalha.reset_state()
             nivel.reset_state()
 
@@ -524,9 +527,12 @@ while run:
                 menu_state = 'levelMenu'
                 poderes = batalhaRetorno['poder']
                 enemyList += 1
+
+                # level terminado
                 if enemyList == 3:
                     levelList += 1
                     batalha.materiaEInimigoIndex = -1
+                    batalha.gerarMaterias = True
                     batalha.reset_image_sound()
                     menu_state = 'map'
                     musicActive = True

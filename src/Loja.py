@@ -55,7 +55,7 @@ class Store():
 
         self.group_btn[0].update()
         self.group_btn[0].draw(self.screen)
-        self.draw_text('VIDA EXTRA --- 7 Dinheiros', self.font, 'White', WIDTH * 0.23, HEIGHT * 0.32)
+        self.draw_text('VIDA EXTRA --- 7 Dinheiros (A vida é consumida após morrer)', self.font, 'White', WIDTH * 0.23, HEIGHT * 0.32)
     
         self.group_btn[1].update()
         self.group_btn[1].draw(self.screen)
@@ -148,4 +148,5 @@ class Store():
 
     def reset_state(self):
         self.state = ''
+        self.falaVendedor = 'entrada'
         self.musicActive = False
