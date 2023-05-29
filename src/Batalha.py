@@ -32,7 +32,7 @@ class Battle(pygame.sprite.Sprite):
         self.materiaInimigo = random.sample(self.materia, k=3)
         self.materiaEInimigoIndex = -1
         self.battleActive = False
-        self.musicActice = False
+        self.musicActive = False
         self.newEnemy = False
         self.state = ''
         self.startTime = 0
@@ -47,7 +47,7 @@ class Battle(pygame.sprite.Sprite):
             'geografia': 0,
             'biologia': 0
         }
-        self.inimigosDerrotados = 0
+        self.gerarMaterias = True
         self.vida_image = pygame.image.load('sprite/vida.png').convert_alpha()
         self.vida_image = pygame.transform.scale(self.vida_image, (48, 42)) # tamanho real do sprite, divida por 3 os valores
 
@@ -134,9 +134,9 @@ class Battle(pygame.sprite.Sprite):
         
 
     def battle_manager(self):
-        if self.musicActice == True:
+        if self.musicActive == True:
             self.musica.on_start()
-            self.musicActice = False
+            self.musicActive = False
 
         self.battle()
         return {
@@ -190,7 +190,6 @@ class Battle(pygame.sprite.Sprite):
 
             self.musica.on_exit()
             self.musica = Musica.BgMusic(self.music_group[self.materiaEInimigoIndex + 1])
-            self.inimigosDerrotados += 1
 
             self.state = 'levelMenu'
         
@@ -247,7 +246,7 @@ class Battle(pygame.sprite.Sprite):
         self.perguntaJaFeita = []
         self.materiaEInimigoIndex = -1
         self.battleActive = False
-        self.musicActice = False
+        self.musicActive = False
         self.newEnemy = False
         self.state = ''
         self.perguntas = perguntas.copy()
@@ -262,6 +261,7 @@ class Battle(pygame.sprite.Sprite):
             'geografia': 0,
             'biologia': 0
         }
+        self.gerarMaterias = True
         self.image = pygame.transform.scale(self.capanga[self.materiaEInimigoIndex + 1], (int(self.width * self.scale), int(self.height * self.scale)))
         self.image = pygame.transform.flip(self.image, True, False)
         self.rect = self.image.get_rect(center=(self.pos_x, self.pos_y))
