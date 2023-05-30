@@ -72,7 +72,7 @@ class Pedro(pygame.sprite.Sprite):
         self.draw_text(str(int((self.tempoMax + 1) - (currentTime - self.startTime))), self.font, 'Blue', 1175, 20)
 
         if (currentTime - self.startTime) >= self.tempoMax:
-            print('Tempo esgotado')
+            # print('Tempo esgotado')
             self.wrong = True
             self.battleWonLost()
             self.battleActive = False
@@ -120,7 +120,7 @@ class Pedro(pygame.sprite.Sprite):
 
     def listagemPerguntas(self):
         materiaPergunta = random.sample(self.materia, k=1)
-        print(materiaPergunta[0])
+        # print(materiaPergunta[0])
 
         self.perguntaJaFeita.append(self.perguntas[materiaPergunta[0]][self.materiaIndex[materiaPergunta[0]]])
         self.perguntaList = self.perguntaJaFeita[-1]['resposta'].copy()
@@ -131,19 +131,19 @@ class Pedro(pygame.sprite.Sprite):
 
     def verifyAnswer(self, answer):
         if answer == self.perguntaJaFeita[-1]['resposta'][0]:
-            print('\033[96m<===== Acertou =====>\033[00m')
+            # print('\033[96m<===== Acertou =====>\033[00m')
 
             if self.instinto == True:
                 a = random.random()
-                print(a)
+                # print(a)
                 if a < 0.25:
-                    print('\033[094mMISS\033[00m')
+                    # print('\033[094mMISS\033[00m')
                 else:
                     self.correct += 1
             else:
                 self.correct += 1
         else:
-            print('\033[91m<===== Errou =====>\033[00m')
+            # print('\033[91m<===== Errou =====>\033[00m')
             self.wrong = True
 
         self.battleWonLost()
@@ -151,12 +151,12 @@ class Pedro(pygame.sprite.Sprite):
     
     def battleWonLost(self):
         if self.correct == self.vidaPedro:
-            print('\033[96m<===== O Mau Foi Erradicado =====>\033[00m')
+            # print('\033[96m<===== O Mau Foi Erradicado =====>\033[00m')
             self.musica.on_exit()
             self.state = 'win'
         
         if self.wrong == True:
-            print('\033[91m<===== Game Over =====>\033[00m')
+            # print('\033[91m<===== Game Over =====>\033[00m')
             self.musica.on_exit()
             self.state = 'skillIssue'
         
@@ -164,14 +164,14 @@ class Pedro(pygame.sprite.Sprite):
     
     def verifyPowerUps(self):
         if self.poderes['instinto_inferior'] == 1:
-            print('Instinto Inferior')
+            # print('Instinto Inferior')
             self.image = pygame.transform.scale(self.chefe[1], (288, 288))
             self.image = pygame.transform.flip(self.image, True, False)
             self.rect = self.image.get_rect(center=(self.pos_x, self.pos_y))
             self.musica = Musica.BgMusic(self.music_group['pedro_instinto'])
             self.instinto = True
         if self.poderes['sans'] == 1:
-            print('Sans')
+            # print('Sans')
             self.image = pygame.transform.scale(self.chefe[2], (152, 216))
             self.image = pygame.transform.flip(self.image, True, False)
             self.rect = self.image.get_rect(center=(self.pos_x, self.pos_y))

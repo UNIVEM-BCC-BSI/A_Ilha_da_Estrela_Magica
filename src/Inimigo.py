@@ -48,10 +48,10 @@ class Enemy(pygame.sprite.Sprite):
 
     def verifyAnswer(self, answer, question):
         if answer == perguntas['matematica'][question]['a']:
-            print('Acertou')
+            # print('Acertou')
             self.correct += 1
         else:
-            print('Burro')
+            # print('Burro')
             self.wrong += 1
         
         return self.correct, self.wrong

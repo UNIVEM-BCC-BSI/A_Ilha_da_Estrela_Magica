@@ -5,7 +5,7 @@ pygame.mixer.pre_init(44100, -16, 2, 512)
 pygame.init()
 pygame.font.init()
 pygame.display.set_caption('A Ilha da Estrela Mágica')
-print('<' + '=' * 100 + '>')
+# print('<' + '=' * 100 + '>')
 # <==== GLOBAL VARIABLES ====>
 menu_state = 'mainMenu'
 perguntas = perguntas.perguntas
@@ -511,7 +511,7 @@ while run:
 
         if batalhaRetorno['estado'] == 'levelMenu':
             if batalhaRetorno['morteOuVencedor'] == True:
-                print('Foi por vida extra')
+                # print('Foi por vida extra')
                 random.shuffle(batalha.perguntas[batalha.materiaInimigo[batalha.materiaEInimigoIndex]])
 
                 batalha.materiaEInimigoIndex -= 1
@@ -523,7 +523,7 @@ while run:
                 else:
                     dinheiros += 1
                 
-                print(f'Dinheiros: {dinheiros}')
+                # print(f'Dinheiros: {dinheiros}')
                 menu_state = 'levelMenu'
                 poderes = batalhaRetorno['poder']
                 enemyList += 1
