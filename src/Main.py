@@ -12,7 +12,7 @@ pygame.display.set_icon(icone)
 menu_state = 'mainMenu'
 perguntas = perguntas.perguntas
 battleActive, musicActive = False, True
-levelList, enemyList = 0, 0
+levelList, enemyList = 3, 3
 dinheiros = 0
 tempoRetorno = time.time()
 font = pygame.font.SysFont('comicsansms', 30)
@@ -22,7 +22,7 @@ poderes = {
     'tempo_extra': 0,
     'dano_extra': 0,
     'sans': 0,
-    'instinto_inferior': 0,
+    'instinto_inferior': 1,
 }
 
 TEXT_COL = (255, 255, 255)
