@@ -91,7 +91,7 @@ class Battle(pygame.sprite.Sprite):
 
         # aumentar o tempo para responder a pergunta
         if (currentTime - self.startTime) >= self.tempoMax:
-            print('Tempo esgotado')
+            # print('Tempo esgotado')
             self.startTime = time.time()
             self.wrong += 1
             self.battleWonLost()
@@ -149,7 +149,7 @@ class Battle(pygame.sprite.Sprite):
     def listagemPerguntas(self):
         if self.newEnemy == True:
             self.materiaInimigo = random.sample(self.materia, k=3)
-            print(self.materiaInimigo)
+            # print(self.materiaInimigo)
 
             for x in self.materiaInimigo:
                 random.shuffle(self.perguntas[x])
@@ -167,13 +167,12 @@ class Battle(pygame.sprite.Sprite):
 
     def verifyAnswer(self, answer):
         if answer == self.perguntaJaFeita[-1]['resposta'][0]:
-            print('Acertou')
+            # print('Acertou')
             pygame.mixer.Sound.play(socao)
             self.correct += 1
             self.battleWonLost()
         else:
-            # print('Burro')
-            print('Errou')
+            # print('Errou')
             self.wrong += 1
             self.battleWonLost()
         
@@ -181,7 +180,7 @@ class Battle(pygame.sprite.Sprite):
     
     def battleWonLost(self):
         if self.correct == 2:
-            print('Inimigo derrotado')
+            # print('Inimigo derrotado')
             width = self.capanga[self.materiaEInimigoIndex + 1].get_width()
             height = self.capanga[self.materiaEInimigoIndex + 1].get_height()
             self.image = pygame.transform.scale(self.capanga[self.materiaEInimigoIndex + 1], (int(width * self.scale), int(height * self.scale)))
@@ -195,14 +194,13 @@ class Battle(pygame.sprite.Sprite):
         
         if self.wrong == 3:
             if self.vidaExtra == True:
-                print('Vida extra utilizada')
+                # print('Vida extra utilizada')
                 self.retornoPorMorteOuNao = True
                 self.state = 'levelMenu'
                 self.poderes['vida_extra'] = 0
                 self.musica.on_exit()
             else:
-                # print('Foi de arrasta pra cima')
-                print('Game Over')
+                # print('Game Over')
                 self.musica.on_exit()
                 self.state = 'mainMenu'
         

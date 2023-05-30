@@ -11,7 +11,7 @@ vida = pygame.image.load('sprite/pedro.png').convert_alpha()
 width = vida.get_width()
 height = vida.get_height()
 
-print(width, height)
+# print(width, height)
 
 run = True
 while run:
