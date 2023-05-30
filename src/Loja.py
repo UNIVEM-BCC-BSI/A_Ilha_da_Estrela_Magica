@@ -17,7 +17,7 @@ class Store():
         self.compras = poderes
         self.vendedor = image
         self.textoAlerta = {
-            'entrada': 'Os poderes comprados serão utilizados automaticamente na próxima batalha.',
+            'entrada': 'Os poderes comprados serão utilizados na próxima batalha. (Menos no Boss)',
             'pobre': 'Você não possui DINHEIROS suficiente para adquirir este item.',
             'item_duplicado': 'Use seu item antes de comprar outro.',
             'item_comprado': 'Obrigado pela compra.'
@@ -71,7 +71,7 @@ class Store():
 
         self.group_btn[4].update()
         self.group_btn[4].draw(self.screen)
-        self.draw_text('??? --- 27 Dinheiros', self.font, 'White', WIDTH * 0.23, HEIGHT * 0.72)
+        self.draw_text('??? ??? --- 27 Dinheiros', self.font, 'White', WIDTH * 0.23, HEIGHT * 0.72)
 
         if self.option_btn[0].mouse_click() == True:
             if self.compras['vida_extra'] == 1:
