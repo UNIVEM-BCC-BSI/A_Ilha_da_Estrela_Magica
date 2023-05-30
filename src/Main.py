@@ -1,4 +1,4 @@
-import pygame, time, random, StringSplitter
+import pygame, time, random, StringSplitter, sys
 import perguntas, Botao, Mapa, Musica, Level, Batalha, Loja, Narrativa, Predo
 
 pygame.mixer.pre_init(44100, -16, 2, 512)
@@ -622,6 +622,7 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
+            sys.exit()
         
     pygame.display.update()
     clock.tick(60)
