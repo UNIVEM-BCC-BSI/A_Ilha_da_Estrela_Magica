@@ -1,10 +1,12 @@
-import pygame, time, random, StringSplitter
+import pygame, time, random, StringSplitter, sys
 import perguntas, Botao, Mapa, Musica, Level, Batalha, Loja, Narrativa, Predo
 
 pygame.mixer.pre_init(44100, -16, 2, 512)
 pygame.init()
 pygame.font.init()
 pygame.display.set_caption('A Ilha da Estrela Mágica')
+icone = pygame.image.load('icone_jogo.jpeg')
+pygame.display.set_icon(icone)
 # print('<' + '=' * 100 + '>')
 # <==== GLOBAL VARIABLES ====>
 menu_state = 'mainMenu'
@@ -427,6 +429,8 @@ while run:
         button_group_left.draw(screen)
 
         if levelList == 3 and enemyList == 3:
+            musica_fundo = Musica.BgMusic(menu_boss_sound)
+            musicActive = True
             mapa.map_state = 'boss'
             nivel.level_state = 'level_1'
             enemyList = 0
@@ -444,8 +448,6 @@ while run:
         if mapaRetorno == 'levelMenu':
             menu_state = 'levelMenu'
 
-            # if batalha.inimigosDerrotados % 3 == 0:
-            #     batalha.newEnemy = True # matérias aleatórias
             if batalha.gerarMaterias == True:
                 batalha.newEnemy = True
                 batalha.gerarMaterias = False
@@ -614,11 +616,13 @@ while run:
             nivel.level_state = 'level_1'
             mapa.map_state = 'level_1'
             menu_state = 'mainMenu'
+            musica_fundo = Musica.BgMusic(menu_sound)
             musicActive = True
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
+            sys.exit()
         
     pygame.display.update()
     clock.tick(60)

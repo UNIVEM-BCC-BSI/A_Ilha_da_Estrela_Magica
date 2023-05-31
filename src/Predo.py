@@ -132,12 +132,10 @@ class Pedro(pygame.sprite.Sprite):
     def verifyAnswer(self, answer):
         if answer == self.perguntaJaFeita[-1]['resposta'][0]:
             # print('\033[96m<===== Acertou =====>\033[00m')
-
             if self.instinto == True:
                 a = random.random()
-                # print(a)
-                if a < 0.25:
-                    # print('\033[094mMISS\033[00m')
+                if a < 0.36:
+                    print('\033[094mMISS\033[00m')
                 else:
                     self.correct += 1
             else:
