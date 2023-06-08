@@ -549,7 +549,6 @@ while run:
                 'vida_extra': 0,
                 'tempo_extra': 0,
                 'dano_extra': 0,
-                'esquiva': 0,
                 'sans': 0,
                 'instinto_inferior': 0,
             }
@@ -609,11 +608,11 @@ while run:
                 'vida_extra': 0,
                 'tempo_extra': 0,
                 'dano_extra': 0,
-                'esquiva': 0,
                 'sans': 0,
                 'instinto_inferior': 0,
             }
             nivel.level_state = 'level_1'
+            loja.compras = poderes
             mapa.map_state = 'level_1'
             menu_state = 'mainMenu'
             musica_fundo = Musica.BgMusic(menu_sound)
