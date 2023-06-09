@@ -10,7 +10,7 @@ Fernando Manso Isaac <br />
 João Henrique Guimarães da Silva <br />
 Nikolas Dalton Perasolli Varella <br />
 
-https://user-images.githubusercontent.com/99358471/232926326-bd7ab8cc-357c-4a02-ba0e-5670f1aaddfc.mp4
+https://github.com/UNIVEM-BCC-BSI/A_Ilha_da_Estrela_Magica/assets/99358471/525de536-57ae-4644-97ab-3872c30be6c9
 
 [MVP.pptx](https://github.com/UNIVEM-BCC-BSI/A_Ilha_da_Estrela_Magica/files/11267105/MVP.pptx) <br />
 [Cronograma A Ilha da Estrela Mágica.xlsx](https://github.com/UNIVEM-BCC-BSI/A_Ilha_da_Estrela_Magica/files/11267106/Cronograma.A.Ilha.da.Estrela.Magica.xlsx) <br />
